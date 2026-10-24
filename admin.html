@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meal Card — Admin — Healthy Diet Cafe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #EFF3EA; --bg-card: #FBFCF9; --ink: #223326; --ink-soft: #5A6B57;
+    --rim: #C9CBB8; --turmeric: #D9A441; --berry: #A13D63; --leaf: #4C7A52;
+    --rule: rgba(34,51,38,0.12); --radius: 16px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{ background: var(--bg); color: var(--ink); font-family: 'Work Sans', sans-serif; min-height: 100vh; padding: 28px 16px 60px; }
+  .wrap{ max-width: 1100px; margin: 0 auto; }
+  .eyebrow{ font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--leaf); font-weight:600; margin-bottom: 4px; }
+  h1{ font-family:'Fraunces', serif; font-weight:600; font-size: 28px; margin: 0 0 2px; letter-spacing: -0.01em; }
+  .sub{ color: var(--ink-soft); font-size: 14px; margin-bottom: 24px; }
+  .card{ background: var(--bg-card); border-radius: var(--radius); border: 1px solid var(--rule); padding: 22px; margin-bottom: 18px; box-shadow: 0 1px 2px rgba(34,51,38,0.04); }
+  #gate .row{ display:flex; gap:8px; }
+  input[type="password"], input[type="text"], input[type="number"], input[type="date"], select{
+    padding: 12px 14px; border-radius: 10px; border: 1px solid var(--rim);
+    background:#fff; font-size:15px; font-family:'Work Sans',sans-serif; color:var(--ink);
+    outline:none; width:100%;
+  }
+  input:focus, select:focus{ border-color: var(--leaf); }
+  button{ font-family:'Work Sans', sans-serif; font-weight:600; font-size:14px; border:none; border-radius: 10px; padding: 12px 16px; cursor:pointer; }
+  button:active{ transform: scale(0.98); }
+  .btn-primary{ background: var(--leaf); color:#fff; }
+  .btn-ghost{ background: #EDEEE6; color: var(--ink); }
+  .btn-small{ padding: 6px 10px; font-size: 12px; border-radius: 8px; }
+  .msg.err{ color: var(--berry); font-size:13px; margin-top:8px; }
+  .msg.ok{ color: var(--leaf); font-size:13px; margin-top:8px; }
+  
+  /* Summary Grids */
+  .summary-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 12px; }
+  @media (max-width: 640px){ .summary-grid{ grid-template-columns: repeat(2, 1fr); } }
+  .stat{ background: var(--bg-card); border:1px solid var(--rule); border-radius: 14px; padding: 16px; }
+  .stat-num{ font-family:'Fraunces', serif; font-size: 26px; font-weight:600; }
+  .stat-label{ font-size: 12px; color: var(--ink-soft); margin-top:2px; }
+  
+  /* Monthly Overview Banner */
+  .monthly-banner {
+    background: #F4F6EE; border: 1px solid var(--leaf); border-radius: var(--radius);
+    padding: 16px 22px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .monthly-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--leaf); }
+  .monthly-stats { display: flex; gap: 32px; }
+  .m-stat { display: flex; flex-direction: column; }
+  .m-stat-val { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; }
+  .m-stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+
+  .toolbar{ display:flex; gap:8px; align-items:center; margin-bottom: 14px; flex-wrap:wrap; }
+  .toolbar input[type="text"]{ flex:1; min-width: 160px; }
+  .toolbar select { width: auto; padding: 8px 12px; font-size: 13px; }
+  .toolbar .spacer{ flex:1; }
+  
+  table{ width:100%; border-collapse: collapse; font-size: 14px; }
+  thead th{ text-align:left; font-size: 11px; text-transform:uppercase; letter-spacing:0.06em; color: var(--ink-soft); border-bottom: 1px solid var(--rule); padding: 8px 10px; }
+  tbody td{ padding: 10px; border-bottom: 1px solid var(--rule); vertical-align:middle; }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background: #F4F6EE; cursor: pointer; }
+  .phone-cell{ font-weight:600; }
+  .badge{ display:inline-block; font-size: 11px; font-weight:600; padding: 3px 8px; border-radius: 999px; }
+  .badge.active{ background: rgba(217,164,65,0.18); color:#8a6b1f; }
+  .badge.complete{ background: rgba(76,122,82,0.14); color: var(--leaf); }
+  .badge.low{ background: rgba(161,61,99,0.12); color: var(--berry); }
+  .badge.delivery { background: rgba(217,164,65,0.2); color: #8a6b1f; }
+  .badge.dinein { background: rgba(76,122,82,0.15); color: var(--leaf); }
+  .badge.paused { background: #ccc; color: #444; }
+  
+  .empty{ text-align:center; color: var(--ink-soft); font-size: 13px; padding: 24px 0; }
+  .modal-overlay{ display:none; position:fixed; top:0; left:0; width:100%; height:100%; background: rgba(34,51,38,0.5); z-index: 1000; justify-content:center; align-items:center; }
+  .modal-overlay.open{ display:flex; }
+  .modal{ background: var(--bg-card); border-radius: var(--radius); padding: 28px; width: 90%; max-width: 680px; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+  .modal h2{ font-family:'Fraunces', serif; margin: 0 0 4px; font-size: 22px; }
+  .modal .close{ float:right; font-size: 24px; cursor:pointer; color: var(--ink-soft); background:none; border:none; }
+  .modal .info-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .modal .info-item label{ font-size: 11px; text-transform:uppercase; color: var(--ink-soft); display:block; margin-bottom:2px; }
+  .modal .info-item .value{ font-weight:600; font-size:15px; }
+  .modal .wallet-box{ background: #F4F6EE; border-radius: 12px; padding: 16px; margin: 16px 0; display:flex; justify-content:space-between; align-items:center; }
+  .modal .wallet-box .balance{ font-family:'Fraunces', serif; font-size: 28px; font-weight:600; }
+  .modal .wallet-box .meals-left{ font-size: 13px; color: var(--ink-soft); }
+  .modal .action-row{ display:flex; gap: 8px; margin: 16px 0; flex-wrap:wrap; }
+  .modal .action-row button{ flex:1; min-width: 120px; }
+  .modal .log-table{ width:100%; font-size: 13px; margin-top: 16px; }
+  .modal .log-table th{ font-size: 10px; padding: 6px 8px; }
+  .modal .log-table td{ padding: 6px 8px; }
+  .modal .log-table .debit{ color: var(--berry); }
+  .modal .log-table .credit{ color: var(--leaf); }
+  .form-group{ margin-bottom: 12px; }
+  .form-group label{ font-size: 12px; font-weight:600; display:block; margin-bottom:4px; }
+  
+  /* Weekly Schedule Grid */
+  .schedule-section { margin-top: 20px; border-top: 1px solid var(--rule); padding-top: 16px; }
+  .schedule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+  .schedule-item { display: flex; align-items: center; gap: 8px; }
+  .schedule-item label { width: 40px; font-size: 12px; font-weight: 600; }
+  .schedule-item select { padding: 6px 8px; font-size: 13px; }
+  
+  /* View Schedule Read-Only */
+  .view-schedule-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+  .view-schedule-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #F4F6EE; border-radius: 8px; font-size: 13px; }
+  .view-schedule-item .day { font-weight: 600; color: var(--ink-soft); }
+  .view-schedule-item .meal { font-weight: 600; color: var(--leaf); }
+  .view-schedule-item .meal.off { color: var(--berry); }
+  .view-schedule-item .meal.empty { color: var(--ink-soft); font-style: italic; font-weight: normal; }
+  
+  #dashboard{ display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Healthy Diet Cafe · Admin</div>
+  <h1>Meal Card Dashboard</h1>
+  <div class="sub">Manage customer wallets and log meals.</div>
+
+  <div class="card" id="gate">
+    <div class="row">
+      <input type="password" id="keyInput" placeholder="Admin key" />
+      <button class="btn-primary" id="loadBtn">View dashboard</button>
+    </div>
+    <div class="msg err" id="gateMsg"></div>
+  </div>
+
+  <div id="dashboard">
+    
+    <!-- Top Row: Overall Stats -->
+    <div class="summary-grid" id="summaryGrid"></div>
+    
+    <!-- Second Row: Monthly Revenue Banner -->
+    <div class="monthly-banner">
+      <div>
+        <div class="monthly-title" id="monthlyTitle">This Month</div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Based on meals logged & top-ups collected</div>
+      </div>
+      <div class="monthly-stats">
+        <div class="m-stat">
+          <span class="m-stat-val" id="mMealsServed">0</span>
+          <span class="m-stat-lbl">Meals Served</span>
+        </div>
+        <div class="m-stat">
+          <span class="m-stat-val" id="mMealRevenue">₹0</span>
+          <span class="m-stat-lbl">Meal Revenue</span>
+        </div>
+        <div class="m-stat">
+          <span class="m-stat-val" id="mTopUps">₹0</span>
+          <span class="m-stat-lbl">Total Top-ups</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search name or phone..." />
+      <select id="typeFilter">
+        <option value="all">All Types</option>
+        <option value="Dine-in">Dine-in</option>
+        <option value="Home Delivery">Home Delivery</option>
+      </select>
+      <select id="slotFilter" style="display:none;">
+        <option value="all">All Slots</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Dinner">Dinner</option>
+        <option value="Both">Both</option>
+      </select>
+      <div class="spacer"></div>
+      <button class="btn-ghost" id="prepCsvBtn" style="background:#D9A441; color:#fff;">Daily Delivery Sheet</button>
+      <button class="btn-ghost" id="exportBtn">Export Full Data</button>
+      <button class="btn-primary btn-small" id="addCustomerBtn">+ New Customer</button>
+      <button class="btn-ghost" id="refreshBtn">Refresh</button>
+      <button class="btn-ghost" id="signOutBtn">Sign out</button>
+    </div>
+
+    <div class="card" style="padding:0; overflow-x:auto;">
+      <table id="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Type</th>
+            <th>Balance</th>
+            <th>Meals Left</th>
+            <th>Last Meal</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="empty" id="emptyMsg" style="display:none;">No customers yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Customer Profile Modal -->
+<div class="modal-overlay" id="profileModal">
+  <div class="modal">
+    <button class="close" onclick="closeProfile()">&times;</button>
+    <h2 id="modalName">Customer Name</h2>
+    <div class="sub" id="modalPhone">+91 XXXXXXXXXX</div>
+    
+    <div style="font-size:14px; margin-bottom:16px; color:var(--ink-soft);" id="modalAddressContainer">
+      <span style="font-weight:600; color:var(--ink);">Address:</span> <span id="modalAddress">—</span>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item"><label>Date of Birth</label><div class="value" id="modalDob">—</div></div>
+      <div class="info-item"><label>Base Meal Price</label><div class="value" id="modalBasePrice">—</div></div>
+      <div class="info-item"><label>Customer Type</label><div class="value" id="modalType">—</div></div>
+      <div class="info-item"><label>Delivery Slot</label><div class="value" id="modalSlot">—</div></div>
+    </div>
+
+    <div class="wallet-box" id="modalWalletBox">
+      <div>
+        <div class="balance" id="modalBalance">₹0</div>
+        <div class="meals-left" id="modalMealsLeft">~0 meals left</div>
+      </div>
+      <div style="text-align:right;">
+        <div class="meals-left">Total Spent</div>
+        <div class="value" id="modalTotalSpent">₹0</div>
+      </div>
+    </div>
+
+    <!-- PAUSED BANNER -->
+    <div id="pausedBanner" style="display:none; background:rgba(161,61,99,0.1); border:1px solid rgba(161,61,99,0.3); color:var(--berry); border-radius:12px; padding:12px; margin-bottom:16px; font-weight:600; text-align:center;">
+      Subscription Paused
+    </div>
+
+    <!-- READ-ONLY WEEKLY SCHEDULE FOR STAFF -->
+    <div id="viewScheduleSection" style="display:none; margin: 16px 0; border-top: 1px solid var(--rule); padding-top: 16px;">
+      <h3 style="font-size:16px; margin:0 0 4px;">Weekly Meal Schedule</h3>
+      <div class="sub" style="margin-bottom: 10px;">What the customer has opted for this week.</div>
+      <div class="view-schedule-grid" id="viewScheduleGrid"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-primary" onclick="openLogMealForm()" id="logMealMainBtn">Log Meal</button>
+      <button class="btn-ghost" onclick="openTopUpForm()">Add Top-up</button>
+      <button class="btn-ghost" onclick="openEditProfileForm()">Edit Profile</button>
+      <button class="btn-ghost" id="pauseBtn" onclick="togglePause()">Pause</button>
+      <button class="btn-ghost" style="color: var(--berry);" onclick="deleteProfile()">Delete</button>
+    </div>
+
+    <!-- Log Meal Form -->
+    <div id="logMealForm" style="display:none; margin-top:16px; border-top:1px solid var(--rule); padding-top:16px;">
+      <h3 style="font-size:16px; margin:0 0 8px;">Log a Meal</h3>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="logMealAmount" value="0" step="1" min="1" />
+      </div>
+      <div class="form-group">
+        <label>Description / Meal Type</label>
+        <input type="text" id="logMealDesc" list="mealOptionsList" value="Standard Meal" />
+        <datalist id="mealOptionsList"></datalist>
+      </div>
+      <button class="btn-primary" onclick="submitLogMeal()" id="logMealBtn">Confirm Meal</button>
+      <button class="btn-ghost" onclick="closeLogMealForm()">Cancel</button>
+      <div class="msg" id="logMealMsg"></div>
+    </div>
+
+    <!-- Top-up Form -->
+    <div id="topUpForm" style="display:none; margin-top:16px; border-top:1px solid var(--rule); padding-top:16px;">
+      <h3 style="font-size:16px; margin:0 0 8px;">Add Top-up</h3>
+      <div class="form-group">
+        <label>Amount (₹)</label>
+        <input type="number" id="topUpAmount" value="1000" step="100" min="1" />
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" id="topUpDesc" value="Cash top-up" />
+      </div>
+      <button class="btn-primary" onclick="submitTopUp()" id="topUpBtn">Confirm Top-up</button>
+      <button class="btn-ghost" onclick="closeTopUpForm()">Cancel</button>
+      <div class="msg" id="topUpMsg"></div>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <div id="editProfileForm" style="display:none; margin-top:16px; border-top:1px solid var(--rule); padding-top:16px;">
+      <h3 style="font-size:16px; margin:0 0 8px;">Edit Profile</h3>
+      <div class="form-group">
+        <label>Name</label>
+        <input type="text" id="editName" />
+      </div>
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="editDob" />
+      </div>
+      <div class="form-group">
+        <label>Address</label>
+        <input type="text" id="editAddress" placeholder="Full delivery address" />
+      </div>
+      <div class="form-group">
+        <label>Base Meal Price (₹)</label>
+        <input type="number" id="editBasePrice" step="1" min="1" />
+      </div>
+      <div class="form-group">
+        <label>Customer Type</label>
+        <select id="editType" onchange="toggleEditSlot()">
+          <option value="Dine-in">Dine-in</option>
+          <option value="Home Delivery">Home Delivery</option>
+        </select>
+      </div>
+      <div class="form-group" id="editSlotGroup" style="display:none;">
+        <label>Delivery Slot</label>
+        <select id="editSlot">
+          <option value="">Select Slot</option>
+          <option value="Lunch">Lunch</option>
+          <option value="Dinner">Dinner</option>
+          <option value="Both">Both</option>
+        </select>
+      </div>
+      
+      <div class="schedule-section" id="editScheduleSection" style="display:none;">
+        <h3 style="font-size:16px; margin:0 0 8px;">Weekly Meal Schedule</h3>
+        <div class="schedule-grid">
+          <div class="schedule-item"><label>Mon</label><select id="edit-sched-mon"></select></div>
+          <div class="schedule-item"><label>Tue</label><select id="edit-sched-tue"></select></div>
+          <div class="schedule-item"><label>Wed</label><select id="edit-sched-wed"></select></div>
+          <div class="schedule-item"><label>Thu</label><select id="edit-sched-thu"></select></div>
+          <div class="schedule-item"><label>Fri</label><select id="edit-sched-fri"></select></div>
+          <div class="schedule-item"><label>Sat</label><select id="edit-sched-sat"></select></div>
+          <div class="schedule-item"><label>Sun</label><select id="edit-sched-sun"></select></div>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="submitEditProfile()">Save Changes</button>
+      <button class="btn-ghost" onclick="closeEditProfileForm()">Cancel</button>
+      <div class="msg" id="editProfileMsg"></div>
+    </div>
+
+    <h3 style="font-size:16px; margin:20px 0 8px;">Transaction History</h3>
+    <table class="log-table">
+      <thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Balance</th></tr></thead>
+      <tbody id="modalLogBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- New Customer Modal -->
+<div class="modal-overlay" id="newCustomerModal">
+  <div class="modal">
+    <button class="close" onclick="closeNewCustomer()">&times;</button>
+    <h2>New Customer</h2>
+    <div class="sub">Create a profile and set up their wallet.</div>
+
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" id="newName" placeholder="Customer name" />
+    </div>
+    <div class="form-group">
+      <label>Phone (10 digits)</label>
+      <input type="text" id="newPhone" placeholder="9876543210" maxlength="10" />
+    </div>
+    <div class="form-group">
+      <label>Address</label>
+      <input type="text" id="newAddress" placeholder="Full delivery address" />
+    </div>
+    <div class="form-group">
+      <label>Date of Birth</label>
+      <input type="date" id="newDob" />
+    </div>
+    <div class="form-group">
+      <label>Base Meal Price (₹)</label>
+      <input type="number" id="newBasePrice" placeholder="150" step="1" min="1" />
+    </div>
+    <div class="form-group">
+      <label>Initial Top-up (₹)</label>
+      <input type="number" id="newTopUp" placeholder="5000" step="100" min="0" />
+    </div>
+    <div class="form-group">
+      <label>Customer Type</label>
+      <select id="newType" onchange="toggleNewSlot()">
+        <option value="Dine-in">Dine-in</option>
+        <option value="Home Delivery">Home Delivery</option>
+      </select>
+    </div>
+    <div class="form-group" id="newSlotGroup" style="display:none;">
+      <label>Delivery Slot</label>
+      <select id="newSlot">
+        <option value="">Select Slot</option>
+        <option value="Lunch">Lunch</option>
+        <option value="Dinner">Dinner</option>
+        <option value="Both">Both</option>
+      </select>
+    </div>
+
+    <div class="schedule-section" id="newScheduleSection" style="display:none;">
+      <h3 style="font-size:16px; margin:0 0 8px;">Weekly Meal Schedule</h3>
+      <div class="schedule-grid">
+        <div class="schedule-item"><label>Mon</label><select id="new-sched-mon"></select></div>
+        <div class="schedule-item"><label>Tue</label><select id="new-sched-tue"></select></div>
+        <div class="schedule-item"><label>Wed</label><select id="new-sched-wed"></select></div>
+        <div class="schedule-item"><label>Thu</label><select id="new-sched-thu"></select></div>
+        <div class="schedule-item"><label>Fri</label><select id="new-sched-fri"></select></div>
+        <div class="schedule-item"><label>Sat</label><select id="new-sched-sat"></select></div>
+        <div class="schedule-item"><label>Sun</label><select id="new-sched-sun"></select></div>
+      </div>
+    </div>
+
+    <button class="btn-primary" onclick="submitNewCustomer()" id="createCustomerBtn">Create Customer</button>
+    <button class="btn-ghost" onclick="closeNewCustomer()">Cancel</button>
+    <div class="msg" id="newCustomerMsg"></div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "https://healthy-diet-cafe.jeezmanw.workers.dev";
+  const SESSION_KEY = "hdc_admin_key";
+
+  const $ = (id) => document.getElementById(id);
+  let allRecords = [];
+  let currentPhone = null;
+  const DAYS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+  const DAY_NAMES = { mon: 'Monday', tue: 'Tuesday', wed: 'Wednesday', thu: 'Thursday', fri: 'Friday', sat: 'Saturday', sun: 'Sunday' };
+  const MEAL_OPTIONS = ["", "30g Veg", "45g Veg", "60g Veg", "30g Non-Veg", "45g Non-Veg", "60g Non-Veg", "Egg", "Special", "Off"];
+
+  // --- SECURITY ---
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str).replace(/[&<>"']/g, function(m) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m];
+    });
+  }
+
+  function safeNum(val, fallback = 0) {
+    const n = Number(val);
+    return isNaN(n) ? fallback : n;
+  }
+
+  function fmtDate(d){
+    if(!d) return "—";
+    const dt = new Date(d + "T00:00:00");
+    return dt.toLocaleDateString("en-IN", { day:"numeric", month:"short" });
+  }
+
+  // FIXED: Force IST (UTC + 5.5 hours) for accurate daily logging
+  function todayStr(){ 
+    const now = new Date();
+    const istDate = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+    return istDate.toISOString().slice(0,10); 
+  }
+
+  function fmtMoney(n){
+    return "₹" + safeNum(n).toLocaleString("en-IN");
+  }
+
+  // --- HELPER: Determine Veg/Non-Veg for Color Coding ---
+  function getDietaryStyle(mealText) {
+    if (!mealText) return "";
+    const text = mealText.toLowerCase();
+    if (text.includes("non-veg") || text.includes("chicken") || text.includes("mutton") || text.includes("fish") || text.includes("egg")) {
+      return "background-color: #f8d7da; color: #721c24;"; // Red/Pink
+    }
+    if (text.includes("veg") || text.includes("paneer") || text.includes("dal") || text.includes("salad")) {
+      return "background-color: #d4edda; color: #155724;"; // Green
+    }
+    return "";
+  }
+
+  function populateMealOptions() {
+    const datalist = $("mealOptionsList");
+    if (datalist) {
+      datalist.innerHTML = MEAL_OPTIONS.filter(o => o !== "").map(opt => `<option value="${opt}">`).join("");
+    }
+  }
+
+  function populateScheduleDropdowns(prefix) {
+    DAYS.forEach(day => {
+      const select = $(`${prefix}-sched-${day}`);
+      if (!select) return;
+      select.innerHTML = MEAL_OPTIONS.map(opt => `<option value="${opt}">${opt || "Select"}</option>`).join("");
+    });
+  }
+
+  function renderViewSchedule(schedule) {
+    if (!schedule || Object.keys(schedule).length === 0) {
+      $("viewScheduleGrid").innerHTML = '<div style="grid-column: span 2; text-align:center; color:var(--ink-soft); font-size:13px;">No schedule set for this customer.</div>';
+      return;
+    }
+    
+    let html = "";
+    DAYS.forEach(day => {
+      const meal = schedule[day] || "";
+      const mealClass = meal === "Off" ? "meal off" : (meal ? "meal" : "meal empty");
+      const mealText = meal || "Not set";
+      
+      html += `
+        <div class="view-schedule-item">
+          <span class="day">${DAY_NAMES[day]}</span>
+          <span class="${mealClass}">${mealText}</span>
+        </div>
+      `;
+    });
+    $("viewScheduleGrid").innerHTML = html;
+  }
+
+  // --- FILTERS ---
+  function applyFilter(){
+    const raw = $("searchInput").value.trim();
+    const typeFilter = $("typeFilter").value;
+    const slotFilter = $("slotFilter").value;
+    
+    const qDigits = raw.replace(/\D/g,"");
+    const qLower = raw.toLowerCase();
+    
+    let filtered = allRecords;
+    
+    if (raw) {
+      filtered = filtered.filter(r =>
+        (qDigits && r.phone.includes(qDigits)) ||
+        (r.name && r.name.toLowerCase().includes(qLower))
+      );
+    }
+    
+    if (typeFilter !== "all") {
+      filtered = filtered.filter(r => (r.customerType || "Dine-in") === typeFilter);
+    }
+    
+    if (slotFilter !== "all") {
+      filtered = filtered.filter(r => (r.deliverySlot || "") === slotFilter);
+    }
+    
+    renderTable(filtered);
+  }
+
+  function toggleSlotFilter() {
+    const type = $("typeFilter").value;
+    $("slotFilter").style.display = type === "Home Delivery" ? "block" : "none";
+    if (type !== "Home Delivery") $("slotFilter").value = "all";
+    applyFilter();
+  }
+
+  // --- RENDER TABLE ---
+  function renderTable(records){
+    if(records.length === 0){
+      $("tbody").innerHTML = "";
+      $("emptyMsg").style.display = "block";
+      return;
+    }
+    $("emptyMsg").style.display = "none";
+
+    $("tbody").innerHTML = records.map(r => {
+      const mealsLeft = safeNum(r.mealsLeft);
+      const low = mealsLeft > 0 && mealsLeft <= 3;
+      let statusBadge;
+      
+      if (r.isPaused) {
+        statusBadge = '<span class="badge paused">Paused</span>';
+      } else if (mealsLeft <= 0) {
+        statusBadge = '<span class="badge low">No Balance</span>';
+      } else if (low) {
+        statusBadge = '<span class="badge low">Low</span>';
+      } else {
+        statusBadge = '<span class="badge active">Active</span>';
+      }
+
+      const type = r.customerType || "Dine-in";
+      const slot = r.deliverySlot ? ` (${r.deliverySlot})` : "";
+      const typeBadge = type === "Home Delivery" 
+        ? `<span class="badge delivery">${type}${slot}</span>` 
+        : `<span class="badge dinein">${type}</span>`;
+
+      return `
+        <tr onclick="openProfile('${r.phone}')">
+          <td>${escapeHtml(r.name) || "—"}</td>
+          <td class="phone-cell">+91 ${escapeHtml(r.phone)}</td>
+          <td>${typeBadge}</td>
+          <td>${fmtMoney(r.walletBalance)}</td>
+          <td>${mealsLeft}</td>
+          <td>${r.lastMealDate ? fmtDate(r.lastMealDate) : "—"}</td>
+          <td>${statusBadge}</td>
+        </tr>
+      `;
+    }).join("");
+  }
+
+  // --- MONTHLY CALCULATIONS ---
+  function renderMonthlyStats(records) {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const monthName = now.toLocaleDateString("en-IN", { month: 'long', year: 'numeric' });
+
+    let mealsServed = 0;
+    let mealRevenue = 0;
+    let totalTopUps = 0;
+
+    records.forEach(r => {
+      (r.log || []).forEach(l => {
+        const logDate = new Date(l.date + "T00:00:00");
+        if (logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear) {
+          if (l.amount < 0) {
+            mealsServed++;
+            mealRevenue += Math.abs(l.amount);
+          } else if (l.amount > 0 && l.description !== "Initial Top-up") {
+            totalTopUps += l.amount; 
+          }
+        }
+      });
+    });
+
+    $("monthlyTitle").textContent = `Overview: ${monthName}`;
+    $("mMealsServed").textContent = mealsServed;
+    $("mMealRevenue").textContent = fmtMoney(mealRevenue);
+    $("mTopUps").textContent = fmtMoney(totalTopUps);
+  }
+
+  // --- PROFILE MODAL ---
+  async function openProfile(phone){
+    currentPhone = phone;
+    const data = await api(`/api/admin/customer?phone=${phone}`);
+    if(data.error) { alert("Could not load customer"); return; }
+
+    $("modalName").textContent = data.name;
+    $("modalPhone").textContent = "+91 " + data.phone;
+    $("modalAddress").textContent = data.address || "—";
+    $("modalDob").textContent = data.dob ? fmtDate(data.dob) : "—";
+    
+    const balance = safeNum(data.walletBalance);
+    const basePrice = safeNum(data.baseMealPrice);
+    
+    $("modalBasePrice").textContent = fmtMoney(basePrice);
+    $("modalBalance").textContent = fmtMoney(balance);
+    $("modalMealsLeft").textContent = basePrice > 0 ? `~${Math.floor(balance / basePrice)} meals left` : "—";
+    $("modalType").textContent = data.customerType || "Dine-in";
+    $("modalSlot").textContent = data.deliverySlot || "—";
+
+    const isPaused = Boolean(data.isPaused);
+    $("pausedBanner").style.display = isPaused ? "block" : "none";
+    $("modalWalletBox").style.opacity = isPaused ? "0.5" : "1";
+    $("pauseBtn").textContent = isPaused ? "Resume" : "Pause";
+    $("pauseBtn").style.color = isPaused ? "var(--leaf)" : "var(--ink)";
+    
+    if (isPaused) {
+      $("logMealMainBtn").disabled = true;
+      $("logMealMainBtn").textContent = "Paused";
+      $("logMealMainBtn").style.opacity = "0.5";
+    } else {
+      $("logMealMainBtn").disabled = false;
+      $("logMealMainBtn").textContent = "Log Meal";
+      $("logMealMainBtn").style.opacity = "1";
+    }
+
+    if (data.customerType === "Home Delivery") {
+      $("viewScheduleSection").style.display = "block";
+      renderViewSchedule(data.weeklySchedule);
+    } else {
+      $("viewScheduleSection").style.display = "none";
+    }
+
+    const totalSpent = data.log.filter(l => l.amount < 0).reduce((s, l) => s + Math.abs(l.amount), 0);
+    $("modalTotalSpent").textContent = fmtMoney(totalSpent);
+
+    $("logMealAmount").value = basePrice || 0;
+    
+    const today = new Date().getDay();
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const todayKey = dayKeys[today];
+    let defaultDesc = "Standard Meal";
+    if (data.weeklySchedule && data.weeklySchedule[todayKey] && data.weeklySchedule[todayKey] !== "Off") {
+      defaultDesc = data.weeklySchedule[todayKey];
+    }
+    $("logMealDesc").value = defaultDesc;
+
+    $("topUpAmount").value = 1000;
+    $("topUpDesc").value = "Cash top-up";
+    $("editName").value = data.name || "";
+    $("editAddress").value = data.address || "";
+    $("editDob").value = data.dob || "";
+    $("editBasePrice").value = basePrice || "";
+    $("editType").value = data.customerType || "Dine-in";
+    $("editSlot").value = data.deliverySlot || "";
+    toggleEditSlot();
+
+    populateScheduleDropdowns('edit');
+    DAYS.forEach(day => {
+      if (data.weeklySchedule && data.weeklySchedule[day]) {
+        $(`edit-sched-${day}`).value = data.weeklySchedule[day];
+      }
+    });
+
+    $("logMealMsg").textContent = "";
+    $("topUpMsg").textContent = "";
+    $("editProfileMsg").textContent = "";
+
+    const log = [...(data.log || [])].reverse();
+    $("modalLogBody").innerHTML = log.map(l => {
+      const isDebit = l.amount < 0;
+      return `
+        <tr>
+          <td>${fmtDate(l.date)}</td>
+          <td>${escapeHtml(l.description) || "—"}</td>
+          <td class="${isDebit ? "debit" : "credit"}">${isDebit ? "-" : "+"}${fmtMoney(Math.abs(l.amount))}</td>
+          <td>${fmtMoney(l.balanceAfter)}</td>
+        </tr>
+      `;
+    }).join("") || '<tr><td colspan="4" style="text-align:center; color:var(--ink-soft);">No transactions yet.</td></tr>';
+
+    $("profileModal").classList.add("open");
+    closeAllForms();
+  }
+
+  function closeAllForms() {
+    $("logMealForm").style.display = "none";
+    $("topUpForm").style.display = "none";
+    $("editProfileForm").style.display = "none";
+  }
+
+  function closeProfile(){
+    $("profileModal").classList.remove("open");
+    currentPhone = null;
+    const key = sessionStorage.getItem(SESSION_KEY);
+    if(key) loadDashboard(key);
+  }
+
+  function openLogMealForm(){ 
+    if ($("logMealMainBtn").disabled) return;
+    closeAllForms(); $("logMealForm").style.display = "block"; 
+  }
+  function closeLogMealForm(){ $("logMealForm").style.display = "none"; }
+  function openTopUpForm(){ closeAllForms(); $("topUpForm").style.display = "block"; }
+  function closeTopUpForm(){ $("topUpForm").style.display = "none"; }
+  function openEditProfileForm(){ closeAllForms(); $("editProfileForm").style.display = "block"; }
+  function closeEditProfileForm(){ $("editProfileForm").style.display = "none"; }
+  
+  function toggleEditSlot() {
+    const isDelivery = $("editType").value === "Home Delivery";
+    $("editSlotGroup").style.display = isDelivery ? "block" : "none";
+    $("editScheduleSection").style.display = isDelivery ? "block" : "none";
+  }
+  
+  function toggleNewSlot() {
+    const isDelivery = $("newType").value === "Home Delivery";
+    $("newSlotGroup").style.display = isDelivery ? "block" : "none";
+    $("newScheduleSection").style.display = isDelivery ? "block" : "none";
+  }
+
+  async function togglePause() {
+    const isCurrentlyPaused = $("pauseBtn").textContent === "Resume";
+    const newPauseState = !isCurrentlyPaused;
+    
+    $("pauseBtn").disabled = true;
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, phone: currentPhone, isPaused: newPauseState }),
+    });
+    const data = await res.json();
+    $("pauseBtn").disabled = false;
+    
+    if(data.error) {
+      alert("Error updating status: " + data.error);
+      return;
+    }
+    openProfile(currentPhone);
+  }
+
+  async function submitLogMeal(){
+    const amount = Number($("logMealAmount").value);
+    const description = $("logMealDesc").value.trim();
+    if(isNaN(amount) || amount <= 0){ $("logMealMsg").textContent = "Enter a valid amount."; return; }
+
+    $("logMealBtn").disabled = true;
+    $("logMealMsg").textContent = "Logging...";
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/log-meal`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, phone: currentPhone, amount, description }),
+    });
+    const data = await res.json();
+    $("logMealBtn").disabled = false;
+    
+    if(data.error){
+      $("logMealMsg").textContent = data.error === "insufficient_balance" ? "Insufficient balance." : "Error: " + data.error;
+      $("logMealMsg").className = "msg err";
+      return;
+    }
+    $("logMealMsg").textContent = "Meal logged!";
+    $("logMealMsg").className = "msg ok";
+    setTimeout(() => { closeProfile(); }, 800);
+  }
+
+  async function submitTopUp(){
+    const amount = Number($("topUpAmount").value);
+    const description = $("topUpDesc").value.trim();
+    if(isNaN(amount) || amount <= 0){ $("topUpMsg").textContent = "Enter a valid amount."; return; }
+
+    $("topUpBtn").disabled = true;
+    $("topUpMsg").textContent = "Adding...";
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/top-up`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, phone: currentPhone, amount, description }),
+    });
+    const data = await res.json();
+    $("topUpBtn").disabled = false;
+    
+    if(data.error){
+      $("topUpMsg").textContent = "Error: " + data.error;
+      $("topUpMsg").className = "msg err";
+      return;
+    }
+    $("topUpMsg").textContent = "Top-up added!";
+    $("topUpMsg").className = "msg ok";
+    setTimeout(() => { closeProfile(); }, 800);
+  }
+
+  async function submitEditProfile(){
+    const name = $("editName").value.trim();
+    const address = $("editAddress").value.trim();
+    const dob = $("editDob").value;
+    const baseMealPrice = Number($("editBasePrice").value);
+    const customerType = $("editType").value;
+    const deliverySlot = $("editSlot").value;
+
+    if(!name || isNaN(baseMealPrice) || baseMealPrice <= 0) {
+      $("editProfileMsg").textContent = "Please enter valid details.";
+      return;
+    }
+    if(customerType === "Home Delivery" && !deliverySlot) {
+      $("editProfileMsg").textContent = "Please select a delivery slot.";
+      return;
+    }
+
+    const weeklySchedule = {};
+    if (customerType === "Home Delivery") {
+      DAYS.forEach(day => {
+        weeklySchedule[day] = $(`edit-sched-${day}`).value;
+      });
+    }
+
+    $("editProfileMsg").textContent = "Saving...";
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/edit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, phone: currentPhone, name, address, dob, baseMealPrice, customerType, deliverySlot, weeklySchedule }),
+    });
+    const data = await res.json();
+    if(data.error){
+      $("editProfileMsg").textContent = "Error: " + data.error;
+      $("editProfileMsg").className = "msg err";
+      return;
+    }
+    $("editProfileMsg").textContent = "Profile updated!";
+    $("editProfileMsg").className = "msg ok";
+    setTimeout(() => { closeProfile(); }, 800);
+  }
+
+  async function deleteProfile(){
+    if(!confirm("Are you sure you want to delete this customer? This action cannot be undone.")) return;
+    
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/delete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, phone: currentPhone }),
+    });
+    const data = await res.json();
+    if(data.error){ alert("Error deleting profile: " + data.error); return; }
+    
+    closeProfile();
+  }
+
+  function openNewCustomer(){ 
+    populateScheduleDropdowns('new');
+    $("newCustomerModal").classList.add("open"); 
+  }
+  function closeNewCustomer(){ $("newCustomerModal").classList.remove("open"); }
+
+  async function submitNewCustomer(){
+    const name = $("newName").value.trim();
+    const phone = $("newPhone").value.trim();
+    const address = $("newAddress").value.trim();
+    const dob = $("newDob").value;
+    const baseMealPrice = Number($("newBasePrice").value);
+    const initialTopUp = Number($("newTopUp").value) || 0;
+    const customerType = $("newType").value;
+    const deliverySlot = $("newSlot").value;
+
+    if(!name || phone.length !== 10 || isNaN(baseMealPrice) || baseMealPrice <= 0){
+      $("newCustomerMsg").textContent = "Please enter a valid name, phone, and base meal price.";
+      return;
+    }
+    if(customerType === "Home Delivery" && !deliverySlot) {
+      $("newCustomerMsg").textContent = "Please select a delivery slot.";
+      return;
+    }
+
+    const weeklySchedule = {};
+    if (customerType === "Home Delivery") {
+      DAYS.forEach(day => {
+        weeklySchedule[day] = $(`new-sched-${day}`).value;
+      });
+    }
+
+    $("createCustomerBtn").disabled = true;
+    $("newCustomerMsg").textContent = "Creating...";
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const res = await fetch(`${API_BASE}/api/admin/create`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key, name, phone, address, dob, baseMealPrice, initialTopUp, customerType, deliverySlot, weeklySchedule }),
+    });
+    const data = await res.json();
+    $("createCustomerBtn").disabled = false;
+
+    if(data.error){
+      $("newCustomerMsg").textContent = data.error === "customer_already_exists" ? "A customer with this phone already exists." : "Error: " + data.error;
+      return;
+    }
+    $("newCustomerMsg").textContent = "Customer created!";
+    setTimeout(() => { closeNewCustomer(); loadDashboard(key); }, 800);
+  }
+
+  // --- EXPORT: HTML to XLS (Allows Color Coding) ---
+  function exportCSV(){
+    if(!allRecords || allRecords.length === 0){
+      alert("No customer data to export.");
+      return;
+    }
+    
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8"></head><body>
+    <table border="1" cellspacing="0" cellpadding="5">
+      <thead>
+        <tr style="background-color: #EFF3EA; font-weight: bold;">
+          <th>Name</th><th>Phone</th><th>Address</th><th>Type</th><th>Slot</th>
+          <th>Wallet Balance</th><th>Base Meal Price</th><th>Meals Left</th><th>Total Spent</th><th>Last Meal Date</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>`;
+      
+    allRecords.forEach(r => {
+      const mealsLeft = safeNum(r.mealsLeft);
+      const status = r.isPaused ? "Paused" : (mealsLeft <= 0 ? "No Balance" : (mealsLeft <= 3 ? "Low" : "Active"));
+      html += `<tr>
+        <td>${escapeHtml(r.name) || "—"}</td>
+        <td>${r.phone}</td>
+        <td>${escapeHtml(r.address) || "—"}</td>
+        <td>${r.customerType || "Dine-in"}</td>
+        <td>${r.deliverySlot || "—"}</td>
+        <td>${safeNum(r.walletBalance)}</td>
+        <td>${safeNum(r.baseMealPrice)}</td>
+        <td>${mealsLeft}</td>
+        <td>${safeNum(r.totalSpent)}</td>
+        <td>${r.lastMealDate || "—"}</td>
+        <td>${status}</td>
+      </tr>`;
+    });
+    
+    html += `</tbody></table></body></html>`;
+
+    const blob = new Blob([html], {type: "application/vnd.ms-excel"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `healthy-diet-cafe-data-${todayStr()}.xls`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // --- EXPORT: Daily Delivery Sheet ---
+  function exportPrepCSV() {
+    if(!allRecords || allRecords.length === 0) {
+      alert("No customer data to generate prep list.");
+      return;
+    }
+    
+    const today = new Date();
+    const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const todayKey = dayKeys[today.getDay()];
+    
+    // Format Date as "Monday, 19 Oct 2026"
+    const dateString = today.toLocaleDateString("en-IN", { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    
+    // Array to hold individual line items for delivery
+    let deliveries = [];
+
+    allRecords.forEach(r => {
+      if (r.isPaused) return; 
+
+      if (r.customerType === "Home Delivery") {
+        const meal = r.weeklySchedule ? r.weeklySchedule[todayKey] : "";
+        if (meal && meal !== "Off" && meal !== "") {
+          deliveries.push({
+            slot: r.deliverySlot || "Both",
+            name: r.name || "—",
+            phone: r.phone || "—",
+            address: r.address || "—",
+            meal: meal
+          });
+        }
+      }
+    });
+
+    if (deliveries.length === 0) {
+      alert(`No Home Delivery meals scheduled for ${dateString}.`);
+      return;
+    }
+
+    // Sort by Slot (Lunch -> Dinner -> Both) for easier packing
+    const slotOrder = { "Lunch": 1, "Dinner": 2, "Both": 3 };
+    deliveries.sort((a, b) => slotOrder[a.slot] - slotOrder[b.slot]);
+
+    // Construct HTML Table
+    let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+    <head><meta charset="UTF-8"></head><body>
+    <h2>Home Delivery List - ${dateString}</h2>
+    <table border="1" cellspacing="0" cellpadding="5">
+      <thead>
+        <tr style="background-color: #EFF3EA; font-weight: bold;">
+          <th>Slot</th><th>Customer Name</th><th>Phone</th><th>Address</th><th>Meal Type</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+    deliveries.forEach(d => {
+      const colorStyle = getDietaryStyle(d.meal);
+      html += `<tr>
+        <td>${d.slot}</td>
+        <td>${escapeHtml(d.name)}</td>
+        <td>${escapeHtml(d.phone)}</td>
+        <td>${escapeHtml(d.address)}</td>
+        <td style="${colorStyle} font-weight: bold;">${escapeHtml(d.meal)}</td>
+      </tr>`;
+    });
+
+    html += `</tbody></table></body></html>`;
+
+    const blob = new Blob([html], {type: "application/vnd.ms-excel"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `delivery-list-${todayKey}-${todayStr()}.xls`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function fetchDashboard(key){
+    const res = await fetch(`${API_BASE}/api/admin/list?key=${encodeURIComponent(key)}`);
+    if(res.status === 401) throw new Error("unauthorized");
+    if(!res.ok) throw new Error("fetch_failed");
+    return res.json();
+  }
+
+  function renderSummary(summary){
+    const cards = [
+      { num: summary.totalCustomers, label: "Total customers" },
+      { num: summary.mealsToday, label: "Meals served today" },
+      { num: summary.active, label: "Active wallets" },
+      { num: summary.lowBalance, label: "Low balance" },
+    ];
+    $("summaryGrid").innerHTML = cards.map(c =>
+      `<div class="stat"><div class="stat-num">${c.num}</div><div class="stat-label">${c.label}</div></div>`
+    ).join("");
+  }
+
+  async function loadDashboard(key){
+    $("gateMsg").textContent = "";
+    try{
+      const data = await fetchDashboard(key);
+      sessionStorage.setItem(SESSION_KEY, key);
+      allRecords = data.records || [];
+      renderSummary(data.summary || {});
+      renderMonthlyStats(allRecords);
+      applyFilter(); 
+      $("gate").style.display = "none";
+      $("dashboard").style.display = "block";
+    }catch(e){
+      if(e.message === "unauthorized") $("gateMsg").textContent = "Incorrect admin key.";
+      else $("gateMsg").textContent = "Couldn't load the dashboard. Check your connection and try again.";
+    }
+  }
+
+  async function api(path, options = {}){
+    const key = sessionStorage.getItem(SESSION_KEY);
+    const url = new URL(API_BASE + path);
+    if(key && !options.noKey){
+      if(options.method === "POST"){}
+      else { url.searchParams.set("key", key); }
+    }
+    const res = await fetch(url.toString(), {
+      headers: { "Content-Type": "application/json" },
+      ...options,
+    });
+    const data = await res.json();
+    if(res.status === 401) throw new Error("unauthorized");
+    return data;
+  }
+
+  $("loadBtn").addEventListener("click", () => {
+    const key = $("keyInput").value.trim();
+    if(!key){ $("gateMsg").textContent = "Enter the admin key."; return; }
+    loadDashboard(key);
+  });
+  $("keyInput").addEventListener("keydown", (e) => { if(e.key === "Enter") $("loadBtn").click(); });
+  $("searchInput").addEventListener("input", applyFilter);
+  $("typeFilter").addEventListener("change", toggleSlotFilter);
+  $("slotFilter").addEventListener("change", applyFilter);
+  $("exportBtn").addEventListener("click", exportCSV);
+  $("prepCsvBtn").addEventListener("click", exportPrepCSV);
+  $("refreshBtn").addEventListener("click", () => {
+    const key = sessionStorage.getItem(SESSION_KEY);
+    if(key) loadDashboard(key);
+  });
+  $("signOutBtn").addEventListener("click", () => {
+    sessionStorage.removeItem(SESSION_KEY);
+    $("dashboard").style.display = "none";
+    $("gate").style.display = "block";
+    $("keyInput").value = "";
+  });
+  $("addCustomerBtn").addEventListener("click", openNewCustomer);
+
+  populateMealOptions();
+
+  const savedKey = sessionStorage.getItem(SESSION_KEY);
+  if(savedKey){ $("keyInput").value = savedKey; loadDashboard(savedKey); }
+</script>
+</body>
+</html>
