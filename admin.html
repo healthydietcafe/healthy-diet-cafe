@@ -48,9 +48,12 @@
     background: #F4F6EE; border: 1px solid var(--leaf); border-radius: var(--radius);
     padding: 16px 22px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
   }
-  .monthly-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--leaf); }
-  .monthly-stats { display: flex; gap: 32px; }
-  .m-stat { display: flex; flex-direction: column; }
+  .monthly-title { font-family: 'Fraunces', serif; font-size: 18px; font-weight: 600; color: var(--leaf); display: flex; align-items: center; gap: 10px; }
+  .monthly-title select { width: auto; padding: 4px 8px; font-family: 'Work Sans', sans-serif; font-size: 14px; font-weight: 600; border-radius: 6px; }
+  
+  /* Updated to accommodate 4 stats */
+  .monthly-stats { display: flex; flex-wrap: wrap; gap: 24px; justify-content: flex-end; }
+  .m-stat { display: flex; flex-direction: column; min-width: 90px; }
   .m-stat-val { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; }
   .m-stat-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
 
@@ -136,7 +139,10 @@
     <!-- Second Row: Monthly Revenue Banner -->
     <div class="monthly-banner">
       <div>
-        <div class="monthly-title" id="monthlyTitle">This Month</div>
+        <div class="monthly-title">
+          Overview: 
+          <select id="monthSelector" onchange="updateMonthlyStats()"></select>
+        </div>
         <div style="font-size:12px; color:var(--ink-soft); margin-top:2px;">Based on meals logged & top-ups collected</div>
       </div>
       <div class="monthly-stats">
@@ -151,6 +157,11 @@
         <div class="m-stat">
           <span class="m-stat-val" id="mTopUps">₹0</span>
           <span class="m-stat-lbl">Total Top-ups</span>
+        </div>
+        <!-- NEW STAT: Unspent Wallets -->
+        <div class="m-stat">
+          <span class="m-stat-val" id="mOutstanding" style="color: var(--berry);">₹0</span>
+          <span class="m-stat-lbl">Unspent Wallets</span>
         </div>
       </div>
     </div>
@@ -579,20 +590,38 @@
   }
 
   // --- MONTHLY CALCULATIONS ---
-  function renderMonthlyStats(records) {
+  function populateMonthSelector() {
+    const select = $("monthSelector");
     const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const monthName = now.toLocaleDateString("en-IN", { month: 'long', year: 'numeric' });
+    let options = "";
+    // Generate options for the last 12 months
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const val = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const label = d.toLocaleDateString("en-IN", { month: 'long', year: 'numeric' });
+      options += `<option value="${val}">${label}</option>`;
+    }
+    select.innerHTML = options;
+  }
+
+  function updateMonthlyStats() {
+    const selected = $("monthSelector").value; 
+    const [targetYear, targetMonth] = selected.split("-").map(Number);
+    const targetMonthZeroIndexed = targetMonth - 1;
 
     let mealsServed = 0;
     let mealRevenue = 0;
     let totalTopUps = 0;
+    let outstandingBalance = 0; // NEW: Carried forward money
 
-    records.forEach(r => {
+    allRecords.forEach(r => {
+      // Calculate outstanding live balance
+      outstandingBalance += safeNum(r.walletBalance);
+
+      // Calculate selected month's historical data
       (r.log || []).forEach(l => {
         const logDate = new Date(l.date + "T00:00:00");
-        if (logDate.getMonth() === currentMonth && logDate.getFullYear() === currentYear) {
+        if (logDate.getMonth() === targetMonthZeroIndexed && logDate.getFullYear() === targetYear) {
           if (l.amount < 0) {
             mealsServed++;
             mealRevenue += Math.abs(l.amount);
@@ -603,10 +632,10 @@
       });
     });
 
-    $("monthlyTitle").textContent = `Overview: ${monthName}`;
     $("mMealsServed").textContent = mealsServed;
     $("mMealRevenue").textContent = fmtMoney(mealRevenue);
     $("mTopUps").textContent = fmtMoney(totalTopUps);
+    $("mOutstanding").textContent = fmtMoney(outstandingBalance); // Display the live total
   }
 
   // --- PROFILE MODAL ---
@@ -1066,7 +1095,8 @@
       sessionStorage.setItem(SESSION_KEY, key);
       allRecords = data.records || [];
       renderSummary(data.summary || {});
-      renderMonthlyStats(allRecords);
+      populateMonthSelector();
+      updateMonthlyStats();
       applyFilter(); 
       $("gate").style.display = "none";
       $("dashboard").style.display = "block";
