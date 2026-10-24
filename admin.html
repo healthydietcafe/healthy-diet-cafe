@@ -596,7 +596,7 @@
           if (l.amount < 0) {
             mealsServed++;
             mealRevenue += Math.abs(l.amount);
-          } else if (l.amount > 0 && l.description !== "Initial Top-up") {
+          } else if (l.amount > 0) {
             totalTopUps += l.amount; 
           }
         }
@@ -978,10 +978,8 @@
     const dayKeys = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
     const todayKey = dayKeys[today.getDay()];
     
-    // Format Date as "Monday, 19 Oct 2026"
     const dateString = today.toLocaleDateString("en-IN", { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
     
-    // Array to hold individual line items for delivery
     let deliveries = [];
 
     allRecords.forEach(r => {
@@ -1006,11 +1004,9 @@
       return;
     }
 
-    // Sort by Slot (Lunch -> Dinner -> Both) for easier packing
     const slotOrder = { "Lunch": 1, "Dinner": 2, "Both": 3 };
     deliveries.sort((a, b) => slotOrder[a.slot] - slotOrder[b.slot]);
 
-    // Construct HTML Table
     let html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
     <head><meta charset="UTF-8"></head><body>
     <h2>Home Delivery List - ${dateString}</h2>
